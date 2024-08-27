@@ -7,17 +7,29 @@
 void tournamentTable();
 
 int main() {
-    matrix_t mat = createMatrix(4, 5);
-    printMatrix(mat);
-    fillMatrix(mat, 4);
-    printMatrix(mat);
-    matrix_t mat2 = createMatrix(4, 5);
-    fillMatrix(mat2, 7);
-    matrix_t mat3 = addMatrix(mat, mat2);
-    printMatrix(mat3);
-    delMatrix(&mat);
-    delMatrix(&mat2);
-    delMatrix(&mat3);
+    const int data1[][4] = {
+        {1, 2, 3, 4},
+        {1, 1, 1, 1}
+    };
+    const int data2[][3] {
+        {0, 1, 2},
+        {1, 1, 1},
+        {2, 2, 2},
+        {1, 2, 3}
+    };
+    matrix_t m1 = createMatrix(4, 2);
+    setMatrix(m1, (const int *) data1);
+    matrix_t m2 = createMatrix(3, 4);
+    setMatrix(m2, (const int *) data2);
+    printMatrix(m1);
+    printMatrix(m2);
+    matrix_t m3 = multiplyMatrix(m1, m2);
+    printMatrix(m3);
+    m3 = multiplyMatrix(m2, m1);
+    delMatrix(&m1);
+    delMatrix(&m2);
+    delMatrix(&m3);
+    //tournamentTable();
     return 0;
 }
 

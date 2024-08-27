@@ -28,6 +28,20 @@ matrix_t addMatrix(matrix_t mat1, const matrix_t mat2) {
     return sum;
 }
 
+matrix_t multiplyMatrix(const matrix_t mat1, const matrix_t mat2) {
+    assert(mat1.sizeX == mat2.sizeY);
+
+    matrix_t result = createMatrix(mat2.sizeX, mat1.sizeY);
+
+    for (size_t i = 0; i < result.sizeY; i++) {
+        for (size_t j = 0; j < result.sizeX; j++) {
+            for (size_t k = 0; k < mat1.sizeX; k++)
+                result.data[i*result.sizeX+j] +=
+                    mat1.data[i*mat1.sizeX + k] * mat2.data[k*mat2.sizeX + j];
+        }
+    }
+    return result;
+}
 
 void fillMatrix(matrix_t mat, const int filler) {
     assert(mat.data);
@@ -37,13 +51,20 @@ void fillMatrix(matrix_t mat, const int filler) {
 
 }
 
+void setMatrix(matrix_t mat, const int* arr) {
+    assert(mat.data);
+
+    for (size_t i = 0; i < mat.sizeX*mat.sizeY; i++)
+        mat.data[i] = arr[i];
+}
+
 void delMatrix(matrix* mat) {
     if (mat->data)
         free(mat->data);
 }
 
 void printMatrix(const matrix_t mat) {
-    if (!mat.data) return;
+    assert(mat.data);
 
     for (size_t i = 0; i < mat.sizeY; i++) {
         for (size_t j = 0; j < mat.sizeX; j++) {
