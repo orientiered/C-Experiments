@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include "mystring.h"
-#include <string.h>
+//#include <string.h>
 char *strcpy(char *s, const char *ct) {
     char *s_copy = s;
     while (*s++=*ct++);
@@ -25,7 +25,7 @@ char *strncat(char *s, const char *ct, size_t n) {
     char *s_copy = s;
     while (*s) s++;
     while (n && (*s++ = *ct++)) n--;
-    if (n) *++s = '\0';
+    if (n) *s = '\0';
     return s_copy;
 }
 
@@ -44,7 +44,7 @@ int strncmp(const char *s, const char *t, size_t n) {
     }
 }
 
-char *strchr(const char *s, char c) {
+char *strchr(char *s, char c) {
     while (*s != c && *s) s++;
     if (*s == c)
         return s;
@@ -52,7 +52,7 @@ char *strchr(const char *s, char c) {
         return NULL;
 }
 
-char *strrchr(const char *s, char c) {
+char *strrchr(char *s, char c) {
     const char *start = s;
     while (*s) s++;
     while (*s != c && s > start) --s;

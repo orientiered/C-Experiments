@@ -68,20 +68,70 @@ long long det(const matrix_t mat) {
     matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
 
     for (size_t k = 0; k < mat.sizeX; k++) {
-        if (*getElement(mat, 0, k) == 0) continue;
-        for (size_t i = 1; i < mat.sizeY; i++) {
-            for (size_t j = 0; j < k; j++) {
-                *getElement(temp, i-1, j) = *getElement(mat, i, j);
-            }
-            for (size_t j = k+1; j < mat.sizeX; j++) {
-                *getElement(temp, i-1, j-1) = *getElement(mat, i, j);
-            }
-        }
-        long long complement = det(temp);
-        result += ((k % 2 == 0) ? 1 : -1) * complement * *getElement(mat, 0, k);
+        // if (*getElement(mat, 0, k) == 0) continue;
+        // for (size_t i = 1; i < mat.sizeY; i++) {
+        //     for (size_t j = 0; j < k; j++) {
+        //         *getElement(temp, i-1, j) = *getElement(mat, i, j);
+        //     }
+        //     for (size_t j = k+1; j < mat.sizeX; j++) {
+        //         *getElement(temp, i-1, j-1) = *getElement(mat, i, j);
+        //     }
+        // }
+        // long long complement = det(temp);
+        // result += ((k % 2 == 0) ? 1 : -1) * complement * *getElement(mat, 0, k);
+        if (*getElement(mat, 0, k) == 0)
+            continue;
+        result += *getElement(mat, 0, k) * complement(mat, temp, 0, k);
     }
     delMatrix(&temp);
     return result;
+}
+
+long long complement(matrix_t mat, matrix_t temp, size_t y, size_t x) {
+    assert(mat.sizeX == temp.sizeX + 1 && mat.sizeY == temp.sizeY + 1);
+    assert(y < mat.sizeY);
+    assert(x < mat.sizeX);
+
+    //Copying to temporary array to calculate complementary of element of matrix
+    //We have 4 blocks of data, so there are 4 for loops
+    for (size_t i = 0; i < y; i++) {
+        for (size_t j = 0; j < x; j++)
+            *getElement(temp, i, j) = *getElement(mat, i, j);
+        for (size_t j = x+1; j < mat.sizeX; j++)
+            *getElement(temp, i, j-1) = *getElement(mat, i, j);
+    }
+
+    for (size_t i = y + 1; i < mat.sizeY; i++) {
+        for (size_t j = 0; j < x; j++)
+            *getElement(temp, i-1, j) = *getElement(mat, i, j);
+        for (size_t j = x+1; j < mat.sizeX; j++)
+            *getElement(temp, i-1, j-1) = *getElement(mat, i, j);
+    }
+
+    long long res = (((x+y) % 2 == 0) ? 1: -1) * det(temp);
+    return res;
+}
+
+matrix_t inverse(const matrix_t mat) {
+    matrix_t res = createMatrix(mat.sizeX, mat.sizeY);
+
+    matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
+    for (size_t i = 0; i < mat.sizeY; i++) {
+        for (size_t j = 0; j < mat.sizeX; j++) {
+            *getElement(res, i, j) = complement(mat, temp, i, j);
+        }
+    }
+    //printMatrix(res);
+    long long determinant = 0;
+    //we already calculated all complementaries, so we don't want to do it again in det() function
+    for (size_t i = 0; i < mat.sizeX; i++) {
+        determinant += *getElement(mat, 0, i) * *getElement(res, 0, i);
+    }
+    printf("det = %lld\n", determinant);
+    for (size_t i = 0; i < res.sizeX*res.sizeY; i++)
+        res.data[i] /= mat.data[i];
+
+    return res;
 }
 
 void fillMatrix(matrix_t mat, const int filler) {
@@ -98,6 +148,7 @@ void setMatrix(matrix_t mat, const int* arr) {
     for (size_t i = 0; i < mat.sizeX*mat.sizeY; i++)
         mat.data[i] = arr[i];
 }
+
 
 void delMatrix(matrix* mat) {
     if (mat->data)

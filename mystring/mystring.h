@@ -10,7 +10,7 @@ char *strncat(char *s, const char *ct, size_t n);
 int strcmp(const char *s, const char *t);
 int strncmp(const char *s, const char *t, size_t n);
 
-char *strchr(const char *s, char c);
-char *strrchr(const char *s, char c);
+char *strchr(char *s, char c);
+char *strrchr(char *s, char c);
 
 #endif

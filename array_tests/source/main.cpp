@@ -27,21 +27,25 @@ int main() {
     printMatrix(m3);
     //m3 = multiplyMatrix(m2, m1);
 
-    const int data3[20][20] {
+    const int data3[][5] {
         {1,  2,  3,  4,  5},
         {0, -4,  3,  2, 21},
         {5, -1,  2,  9, 15},
         {5, 12, -9, 18,  2},
         {4,  4, -4, 12,  5}
     };
-    matrix_t detTest = createMatrix(20, 20);
+    matrix_t detTest = createMatrix(5, 5);
     setMatrix(detTest, (const int *)data3);
     printMatrix(detTest);
     long long determinant = det(detTest);
     printf("\n%lld\n", determinant);
+    matrix_t inv = inverse(detTest);
+    printMatrix(inv);
     delMatrix(&m1);
     delMatrix(&m2);
     delMatrix(&m3);
+    delMatrix(&inv);
+    delMatrix(&detTest);
     //tournamentTable();
     return 0;
 }
