@@ -3,11 +3,21 @@
 
 #include "utils.h"
 #include "tournamentTable.h"
-
+#include "matrix.h"
 void tournamentTable();
 
 int main() {
-    tournamentTable();
+    matrix_t mat = createMatrix(4, 5);
+    printMatrix(mat);
+    fillMatrix(mat, 4);
+    printMatrix(mat);
+    matrix_t mat2 = createMatrix(4, 5);
+    fillMatrix(mat2, 7);
+    matrix_t mat3 = addMatrix(mat, mat2);
+    printMatrix(mat3);
+    delMatrix(&mat);
+    delMatrix(&mat2);
+    delMatrix(&mat3);
     return 0;
 }
 
