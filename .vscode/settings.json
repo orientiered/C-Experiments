@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "cmath": "cpp",
+        "concepts": "cpp",
+        "exception": "cpp",
+        "iterator": "cpp",
+        "memory": "cpp",
+        "streambuf": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "xiosbase": "cpp",
+        "xmemory": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
+    }
+}
