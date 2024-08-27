@@ -25,7 +25,20 @@ int main() {
     printMatrix(m2);
     matrix_t m3 = multiplyMatrix(m1, m2);
     printMatrix(m3);
-    m3 = multiplyMatrix(m2, m1);
+    //m3 = multiplyMatrix(m2, m1);
+
+    const int data3[20][20] {
+        {1,  2,  3,  4,  5},
+        {0, -4,  3,  2, 21},
+        {5, -1,  2,  9, 15},
+        {5, 12, -9, 18,  2},
+        {4,  4, -4, 12,  5}
+    };
+    matrix_t detTest = createMatrix(20, 20);
+    setMatrix(detTest, (const int *)data3);
+    printMatrix(detTest);
+    long long determinant = det(detTest);
+    printf("\n%lld\n", determinant);
     delMatrix(&m1);
     delMatrix(&m2);
     delMatrix(&m3);

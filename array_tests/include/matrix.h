@@ -12,6 +12,12 @@ matrix_t addMatrix(const matrix_t mat1, const matrix_t mat2);
 
 matrix_t multiplyMatrix(const matrix_t mat1, const matrix_t mat2);
 
+matrix_t copyMatrix(const matrix_t mat);
+
+int* getElement(matrix_t mat, size_t i, size_t j);
+
+long long det(const matrix_t mat);
+
 void fillMatrix(matrix_t mat, const int filler);
 
 void setMatrix(matrix_t mat, const int* arr);

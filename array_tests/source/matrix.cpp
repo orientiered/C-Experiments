@@ -43,6 +43,47 @@ matrix_t multiplyMatrix(const matrix_t mat1, const matrix_t mat2) {
     return result;
 }
 
+matrix_t copyMatrix(const matrix_t mat) {
+    matrix_t newMatrix = createMatrix(mat.sizeX, mat.sizeY);
+    setMatrix(newMatrix, mat.data);
+    return newMatrix;
+}
+
+int* getElement(matrix_t mat, size_t i, size_t j) {
+    assert(i < mat.sizeY);
+    assert(j < mat.sizeX);
+    assert(mat.data);
+    return mat.data+i*mat.sizeX+j;
+}
+
+long long det(const matrix_t mat) {
+    assert(mat.data);
+    assert(mat.sizeX == mat.sizeY);
+
+    if (mat.sizeX == 1) return mat.data[0];
+    if (mat.sizeX == 2) return  *getElement(mat, 0, 0)* *getElement(mat, 1, 1) -
+                                *getElement(mat, 1, 0)* *getElement(mat, 0, 1);
+
+    long long result = 0;
+    matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
+
+    for (size_t k = 0; k < mat.sizeX; k++) {
+        if (*getElement(mat, 0, k) == 0) continue;
+        for (size_t i = 1; i < mat.sizeY; i++) {
+            for (size_t j = 0; j < k; j++) {
+                *getElement(temp, i-1, j) = *getElement(mat, i, j);
+            }
+            for (size_t j = k+1; j < mat.sizeX; j++) {
+                *getElement(temp, i-1, j-1) = *getElement(mat, i, j);
+            }
+        }
+        long long complement = det(temp);
+        result += ((k % 2 == 0) ? 1 : -1) * complement * *getElement(mat, 0, k);
+    }
+    delMatrix(&temp);
+    return result;
+}
+
 void fillMatrix(matrix_t mat, const int filler) {
     assert(mat.data);
 
