@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdio.h>
 #include "mystring.h"
 //#include <string.h>
 char *strcpy(char *s, const char *ct) {
@@ -31,16 +32,16 @@ char *strncat(char *s, const char *ct, size_t n) {
 
 int strcmp(const char *s, const char *t) {
     for (; *s || *t; s++, t++) {
-        if (*s > *t) return 1;
-        else if (*s < *t) return -1;
+        if (*s != *t)
+            return int(*s) - *t;
     }
     return 0;
 }
 
 int strncmp(const char *s, const char *t, size_t n) {
     for (;n &&  (*s || *t); s++, t++, n--) {
-        if (*s > *t) return 1;
-        else if (*s < *t) return -1;
+        if (*s != *t)
+            return int(*s) - *t;
     }
     return 0;
 }
@@ -63,6 +64,23 @@ char *strrchr(char *s, char c) {
         return NULL;
 }
 
+char *strstr(char *s, const char *t) {
+    while (*s) {
+        while ((*s != *t) && *s)
+            s++;
+        char *sCopy = s;
+        while ((*s == *t) && *s && *t)
+            s++, t++;
+        if (*t == '\0')
+            return sCopy;
+        else
+            t -= s - sCopy;
+    }
+    return NULL;
+}
 
+char *strtok(char *s, const char *tok) {
+
+}
 
 

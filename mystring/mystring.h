@@ -13,4 +13,8 @@ int strncmp(const char *s, const char *t, size_t n);
 char *strchr(char *s, char c);
 char *strrchr(char *s, char c);
 
+char *strstr(char *s, const char *t );
+
+char *strtok(char *s, const char *tok);
+
 #endif
