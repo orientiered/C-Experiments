@@ -7,7 +7,7 @@ CMD_MKDIR_LINUX = @mkdir -p $(OBJDIR)
 CMD_MKDIR_WIN = @IF exist "$(OBJDIR)/" ( echo "" ) ELSE ( mkdir "$(OBJDIR)/" )
 
 #WIN for windows, LINUX for linux
-SYSTEM = LINUX
+SYSTEM = WIN
 ifeq ($(SYSTEM),WIN)
 	CMD_DEL = $(CMD_DEL_WIN)
 	CMD_MKDIR = $(CMD_MKDIR_WIN)

@@ -1,43 +1,66 @@
 #include <stdio.h>
+#include <assert.h>
+#include <string.h>
 #include "archiver.h"
 
-static void writeEncodedBlock(char **anchor, int *isSame, unsigned char *code, int *numSymbols) {
-    fputc(code + (numSymbols), out);
-    if (isSame == 1) {
-        fputc(*anchor, out);
-    } else (isSame == 0) {
-        fwrite(anchor, 1, numSymbols, out);
+//when encoding, this text is the start of file
+//when decoding, program will check if file is signed correctly
+const char identifierText[] = "__rle__v.1.0\n";
+
+/// @brief
+/// @param anchor Start of the block
+/// @param isSame Type of block
+/// @param numSymbols Number of symbols in block
+static void writeEncodedBlock(char **anchor, int *isSame, int *numSymbols, FILE *out);
+
+static void writeEncodedBlock(char **anchor, int *isSame, int *numSymbols, FILE *out) {
+    assert(*numSymbols <= 127);
+    assert(*isSame != -1);
+
+    const unsigned char firstBit = *isSame * (1 << 7); //128 if isSame = 1;
+    //writing code to identify block
+    fputc(firstBit + (*numSymbols), out);
+    //writing block
+    switch(*isSame) {
+        case 0:
+            fwrite(*anchor, 1, *numSymbols, out);
+            break;
+        case 1:
+            fputc(**anchor, out);
+            break;
+        default:
+            break;
     }
+    //moving anchor point and reseting other parameters
     *anchor += *numSymbols;
     *isSame = -1;
-    *code = 0;
     *numSymbols = 0;
 }
 
+/*!
+    @brief Simple RLE encoder
+    10000000 <br>
+    first bit: 0 or 1 <br>
+    1 - equal symbols <br>
+    0 - different symbols <br>
+    other bits = number of symbols
+*/
 void encodeRLE(char *input, size_t size, FILE * out) {
     int numSymbols = 0;
     int isSame = -1;
-    char *anchor = input;
-    unsigned char code = 0;
-    unsigned char mask = 1<<7;
-    //10000000
-    //first bit: 0  1
-    //1 - equal symbols
-    //0 - different symbols
-    //other bits = number of symbols-1 (because 0 symbols doesn't make sense)
+    char *anchor = input; //start of the current block
+    const unsigned char maxSymbols = 1 << 7 - 1;
+
+    //archiver sign
+    fwrite(identifierText, 1, sizeof(identifierText), out);
+
     for (size_t i = 0; i < size; i++) {
-        if (numSymbols == 127) {
-            writeEncodedBlock(&anchor, &isSame, &code, &numSymbols);
-        } else
-        if ((anchor - input) == i) {
+        if (numSymbols == maxSymbols) {
+            writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
+        } else if ((anchor - input) == i) {
             continue;
-        }
-        else if ((anchor - input) == (i-1)) {
-            if (input[i-1] == input[i]) {
-                isSame = 1;
-                code |= mask;
-            } else
-                isSame = 0;
+        } else if ((anchor - input) == (i-1)) {
+            isSame = (input[i-1] == input[i]);
             numSymbols = 2;
         } else {
             if (((input[i] == input[i-1]) && (isSame == 1)) ||
@@ -45,27 +68,34 @@ void encodeRLE(char *input, size_t size, FILE * out) {
                 numSymbols++;
             } else if ((input[i] == input[i-1]) && (isSame == 0)) {
                 numSymbols--;
-                writeEncodedBlock(&anchor, &isSame, &code, &numSymbols);
+                writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
                 i--;
             } else if (isSame == 1) {
-                writeEncodedBlock(&anchor, &isSame, &code, &numSymbols);
+                writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
             }
         }
-
     }
+
+    //putting last block to file
     if (anchor == (input + size-1)) {
+        //only one symbol
         fputc(1, out);
         fputc(*anchor, out);
     } else {
-        fputc(code + (numSymbols), out);
-        if (code & mask)
-            fputc(*anchor, out);
-        else
-            fwrite(anchor, 1, numSymbols, out);
+        writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
     }
 }
 
+
 void decodeRLE(FILE *in, FILE *out) {
+    char fileSign[sizeof(identifierText)] = "";
+    fread(fileSign, 1, sizeof(identifierText) - 1, in);
+
+    if (strcmp(fileSign, identifierText) != 0) {
+        printf("This file wasn't archived by RLE; can't decode\n");
+        return;
+    }
+
     unsigned char code = 0;
     unsigned char mask = 1<<7;
     int symbol = 0;
