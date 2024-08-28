@@ -5,7 +5,7 @@
 
 matrix_t createMatrix(size_t sizeX, size_t sizeY) {
     matrix_t newMatrix = {};
-    newMatrix.data = (int*) calloc(sizeX*sizeY, sizeof(int));
+    newMatrix.data = (elementMatrix_t*) calloc(sizeX*sizeY, sizeof(elementMatrix_t));
     if (newMatrix.data) {
         newMatrix.sizeX = sizeX;
         newMatrix.sizeY = sizeY;
@@ -20,12 +20,12 @@ matrix_t addMatrix(matrix_t mat1, const matrix_t mat2) {
     assert(mat1.data);
     assert(mat2.data);
 
-    matrix_t sum = createMatrix(mat1.sizeX, mat1.sizeY);
+    matrix_t result = createMatrix(mat1.sizeX, mat1.sizeY);
 
     for (size_t i = 0; i < mat1.sizeX*mat1.sizeY; i++)
-        sum.data[i] = mat1.data[i] + mat2.data[i];
+        result.data[i] = mat1.data[i] + mat2.data[i];
 
-    return sum;
+    return result;
 }
 
 matrix_t multiplyMatrix(const matrix_t mat1, const matrix_t mat2) {
@@ -49,14 +49,14 @@ matrix_t copyMatrix(const matrix_t mat) {
     return newMatrix;
 }
 
-int* getElement(matrix_t mat, size_t i, size_t j) {
+elementMatrix_t* getElement(matrix_t mat, size_t i, size_t j) {
     assert(i < mat.sizeY);
     assert(j < mat.sizeX);
     assert(mat.data);
     return mat.data+i*mat.sizeX+j;
 }
 
-long long det(const matrix_t mat) {
+elementMatrix_t det(const matrix_t mat) {
     assert(mat.data);
     assert(mat.sizeX == mat.sizeY);
 
@@ -64,7 +64,7 @@ long long det(const matrix_t mat) {
     if (mat.sizeX == 2) return  *getElement(mat, 0, 0)* *getElement(mat, 1, 1) -
                                 *getElement(mat, 1, 0)* *getElement(mat, 0, 1);
 
-    long long result = 0;
+    elementMatrix_t result = 0;
     matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
     //det(A) = sum(A[0][i]*complement(A[0][i] for i in range [0;sizeX-1])
     for (size_t k = 0; k < mat.sizeX; k++) {
@@ -76,7 +76,7 @@ long long det(const matrix_t mat) {
     return result;
 }
 
-long long complement(matrix_t mat, matrix_t temp, size_t y, size_t x) {
+elementMatrix_t complement(matrix_t mat, matrix_t temp, size_t y, size_t x) {
     assert(mat.sizeX == temp.sizeX + 1 && mat.sizeY == temp.sizeY + 1);
     assert(y < mat.sizeY);
     assert(x < mat.sizeX);
@@ -97,34 +97,49 @@ long long complement(matrix_t mat, matrix_t temp, size_t y, size_t x) {
             *getElement(temp, i-1, j-1) = *getElement(mat, i, j);
     }
 
-    long long res = (((x+y) % 2 == 0) ? 1: -1) * det(temp);
-    return res;
+    elementMatrix_t result = (((x+y) % 2 == 0) ? 1: -1) * det(temp);
+    return result;
+}
+
+matrix_t transpose(const matrix_t mat) {
+    if (!mat.data)
+        return mat;
+    matrix_t result = createMatrix(mat.sizeY, mat.sizeX);
+    for (size_t i = 0; i < mat.sizeY; i++) {
+        for (size_t j = 0; j < mat.sizeX; j++) {
+            *getElement(result, j, i) = *getElement(mat, i, j);
+        }
+    }
+    return result;
 }
 
 matrix_t inverse(const matrix_t mat) {
-    matrix_t res = createMatrix(mat.sizeX, mat.sizeY);
+    matrix_t result = createMatrix(mat.sizeX, mat.sizeY);
 
+    //creating temporary matrix, because we don't want to allocate memory on every complement() call
     matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
     for (size_t i = 0; i < mat.sizeY; i++) {
         for (size_t j = 0; j < mat.sizeX; j++) {
-            *getElement(res, i, j) = complement(mat, temp, i, j);
+            *getElement(result, i, j) = complement(mat, temp, i, j);
         }
     }
     delMatrix(&temp);
-    //printMatrix(res);
-    long long determinant = 0;
+
+    elementMatrix_t determinant = 0;
     //we already calculated all complementaries, so we don't want to do it again in det() function
     for (size_t i = 0; i < mat.sizeX; i++) {
-        determinant += *getElement(mat, 0, i) * *getElement(res, 0, i);
+        determinant += *getElement(mat, 0, i) * *getElement(result, 0, i);
     }
-    printf("det = %lld\n", determinant);
-    for (size_t i = 0; i < res.sizeX*res.sizeY; i++)
-        res.data[i] /= determinant;
+    printf("det = %lg\n", determinant);
+    for (size_t i = 0; i < mat.sizeX*mat.sizeY; i++)
+        result.data[i] /= determinant;
 
-    return res;
+    matrix_t invertedMatrix = transpose(result);
+    delMatrix(&result);
+    return invertedMatrix;
 }
 
-void fillMatrix(matrix_t mat, const int filler) {
+void fillMatrix(matrix_t mat, const elementMatrix_t filler) {
     if (!mat.data)
         return;
 
@@ -133,7 +148,7 @@ void fillMatrix(matrix_t mat, const int filler) {
 
 }
 
-void setMatrix(matrix_t mat, const int* arr) {
+void setMatrix(matrix_t mat, const elementMatrix_t* arr) {
     if (!mat.data)
         return;
 
@@ -153,7 +168,7 @@ void printMatrix(const matrix_t mat) {
 
     for (size_t i = 0; i < mat.sizeY; i++) {
         for (size_t j = 0; j < mat.sizeX; j++) {
-            printf("%d ", mat.data[i*mat.sizeX+j]);
+            printf("%lg ", mat.data[i*mat.sizeX+j]);
         }
         printf("\n");
     }

@@ -7,27 +7,27 @@
 void tournamentTable();
 
 int main() {
-    const int data1[][4] = {
+    const double data1[][4] = {
         {1, 2, 3, 4},
         {1, 1, 1, 1}
     };
-    const int data2[][3] {
+    const double data2[][3] {
         {0, 1, 2},
         {1, 1, 1},
         {2, 2, 2},
         {1, 2, 3}
     };
     matrix_t m1 = createMatrix(4, 2);
-    setMatrix(m1, (const int *) data1);
+    setMatrix(m1, (const double *) data1);
     matrix_t m2 = createMatrix(3, 4);
-    setMatrix(m2, (const int *) data2);
+    setMatrix(m2, (const double *) data2);
     printMatrix(m1);
     printMatrix(m2);
     matrix_t m3 = multiplyMatrix(m1, m2);
     printMatrix(m3);
     //m3 = multiplyMatrix(m2, m1);
 
-    const int data3[][5] {
+    const double data3[][5] {
         {1,  2,  3,  4,  5},
         {0, -4,  3,  2, 21},
         {5, -1,  2,  9, 15},
@@ -35,15 +35,18 @@ int main() {
         {4,  4, -4, 12,  5}
     };
     matrix_t detTest = createMatrix(5, 5);
-    setMatrix(detTest, (const int *)data3);
+    setMatrix(detTest, (const double *)data3);
     printMatrix(detTest);
-    long long determinant = det(detTest);
-    printf("\n%lld\n", determinant);
+    double determinant = det(detTest);
+    printf("\n%lg\n", determinant);
     matrix_t inv = inverse(detTest);
     printMatrix(inv);
+    matrix_t m4 = multiplyMatrix(inv, detTest);
+    printMatrix(m4);
     delMatrix(&m1);
     delMatrix(&m2);
     delMatrix(&m3);
+    delMatrix(&m4);
     delMatrix(&inv);
     delMatrix(&detTest);
     //tournamentTable();

@@ -1,8 +1,9 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+typedef double elementMatrix_t;
 typedef struct matrix {
-    int *data;
+    elementMatrix_t *data;
     size_t sizeX, sizeY;
 } matrix_t;
 
@@ -16,15 +17,17 @@ matrix_t copyMatrix(const matrix_t mat);
 
 matrix_t inverse(const matrix_t mat);
 
-long long complement(matrix_t mat, matrix_t temp, size_t y, size_t x);
+matrix_t transpose(const matrix_t mat);
 
-int* getElement(matrix_t mat, size_t i, size_t j);
+elementMatrix_t complement(matrix_t mat, matrix_t temp, size_t y, size_t x);
 
-long long det(const matrix_t mat);
+elementMatrix_t* getElement(matrix_t mat, size_t i, size_t j);
 
-void fillMatrix(matrix_t mat, const int filler);
+elementMatrix_t det(const matrix_t mat);
 
-void setMatrix(matrix_t mat, const int* arr);
+void fillMatrix(matrix_t mat, const elementMatrix_t filler);
+
+void setMatrix(matrix_t mat, const elementMatrix_t* arr);
 
 void delMatrix(matrix* mat);
 
