@@ -3,13 +3,13 @@
 //#include <string.h>
 char *strcpy(char *s, const char *ct) {
     char *s_copy = s;
-    while (*s++=*ct++);
+    while ((*s++=*ct++) != '\0');
     return s_copy;
 }
 
 char *strncpy(char *s, const char *ct, size_t n) {
     char *s_copy = s;
-    while (n && (*s++ = *ct++))n--;
+    while (n && (*s++ = *ct++) != '\0')n--;
     if (!n) *s = '\0';
     return s_copy;
 }
@@ -17,15 +17,15 @@ char *strncpy(char *s, const char *ct, size_t n) {
 char *strcat(char *s, const char *ct) {
     char *s_copy = s;
     while (*s) s++;
-    while (*s++ = *ct++);
+    while ((*s++ = *ct++) != '\0');
     return s_copy;
 }
 
 char *strncat(char *s, const char *ct, size_t n) {
     char *s_copy = s;
     while (*s) s++;
-    while (n && (*s++ = *ct++)) n--;
-    if (n) *s = '\0';
+    while (n && (*s++ = *ct++) != '\0') n--;
+    if (!n) *s = '\0';
     return s_copy;
 }
 
@@ -42,6 +42,7 @@ int strncmp(const char *s, const char *t, size_t n) {
         if (*s > *t) return 1;
         else if (*s < *t) return -1;
     }
+    return 0;
 }
 
 char *strchr(char *s, char c) {
@@ -56,8 +57,12 @@ char *strrchr(char *s, char c) {
     const char *start = s;
     while (*s) s++;
     while (*s != c && s > start) --s;
-    if (*s == c) return s;
-    else NULL;
+    if (*s == c)
+        return s;
+    else
+        return NULL;
 }
+
+
 
 

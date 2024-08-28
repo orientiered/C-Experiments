@@ -66,20 +66,9 @@ long long det(const matrix_t mat) {
 
     long long result = 0;
     matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
-
+    //det(A) = sum(A[0][i]*complement(A[0][i] for i in range [0;sizeX-1])
     for (size_t k = 0; k < mat.sizeX; k++) {
-        // if (*getElement(mat, 0, k) == 0) continue;
-        // for (size_t i = 1; i < mat.sizeY; i++) {
-        //     for (size_t j = 0; j < k; j++) {
-        //         *getElement(temp, i-1, j) = *getElement(mat, i, j);
-        //     }
-        //     for (size_t j = k+1; j < mat.sizeX; j++) {
-        //         *getElement(temp, i-1, j-1) = *getElement(mat, i, j);
-        //     }
-        // }
-        // long long complement = det(temp);
-        // result += ((k % 2 == 0) ? 1 : -1) * complement * *getElement(mat, 0, k);
-        if (*getElement(mat, 0, k) == 0)
+        if (*getElement(mat, 0, k) == 0) //small, but very powerful optimisation
             continue;
         result += *getElement(mat, 0, k) * complement(mat, temp, 0, k);
     }
@@ -121,6 +110,7 @@ matrix_t inverse(const matrix_t mat) {
             *getElement(res, i, j) = complement(mat, temp, i, j);
         }
     }
+    delMatrix(&temp);
     //printMatrix(res);
     long long determinant = 0;
     //we already calculated all complementaries, so we don't want to do it again in det() function
@@ -129,13 +119,14 @@ matrix_t inverse(const matrix_t mat) {
     }
     printf("det = %lld\n", determinant);
     for (size_t i = 0; i < res.sizeX*res.sizeY; i++)
-        res.data[i] /= mat.data[i];
+        res.data[i] /= determinant;
 
     return res;
 }
 
 void fillMatrix(matrix_t mat, const int filler) {
-    assert(mat.data);
+    if (!mat.data)
+        return;
 
     for (size_t i = 0; i < mat.sizeX*mat.sizeY; i++)
         mat.data[i] = filler;
@@ -143,7 +134,8 @@ void fillMatrix(matrix_t mat, const int filler) {
 }
 
 void setMatrix(matrix_t mat, const int* arr) {
-    assert(mat.data);
+    if (!mat.data)
+        return;
 
     for (size_t i = 0; i < mat.sizeX*mat.sizeY; i++)
         mat.data[i] = arr[i];
@@ -153,6 +145,7 @@ void setMatrix(matrix_t mat, const int* arr) {
 void delMatrix(matrix* mat) {
     if (mat->data)
         free(mat->data);
+    mat->data = NULL;
 }
 
 void printMatrix(const matrix_t mat) {
