@@ -5,7 +5,9 @@
 
 #include "utils.h"
 #include "myVector.h"
-//color
+
+const size_t MINIMUM_RESERVED = 5;
+
 void* getElem(vector_t vec, size_t i) {
     assert(i < vec.size);
     return (char*)vec.base + i * vec.elemSize;
@@ -68,7 +70,32 @@ void vectorDtor(vector_t* vec) {
 }
 
 vector_t vectorCtor(size_t size, size_t elemSize) {
-    vector_t newVector = {NULL, size, elemSize};
-    newVector.base = calloc(size, elemSize);
+    size_t reserved = (size < MINIMUM_RESERVED) ? MINIMUM_RESERVED : size;
+    vector_t newVector = {NULL, size, reserved, elemSize};
+    newVector.base = calloc(reserved, elemSize);
     return newVector;
+}
+
+vector_t vectorListCtor(size_t elemSize, ...) {
+
+}
+
+void* vectorPush(vector_t* vec, void* elem) {
+    if (vec->size >= vec->reserved) {
+        void *newBase = calloc(vec->reserved * 2, vec->elemSize);
+        if (!newBase) return NULL;
+        vec->reserved *= 2;
+        memcpy(newBase, vec->base, vec->size*vec->elemSize);
+        free(vec->base);
+        vec->base = newBase;
+    }
+    vec->size++;
+    memcpy(getElem(*vec, vec->size-1), elem, vec->elemSize);
+    return getElem(*vec, vec->size-1);
+}
+
+void* vectorPop(vector_t* vec) {
+    if (vec->size == 0) return NULL;
+    vec->size--;
+    return getElem(*vec, vec->size-1);
 }

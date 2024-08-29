@@ -20,14 +20,25 @@ int main() {
     for (size_t i = 0; i < floatVec.size; i++)
         printf("%f ", *(float*)getElem(floatVec, i));
     vectorDtor(&floatVec);
-    //matrixTests
+
+    vector_t intVec = vectorCtor(0, sizeof(int));
+    while(1) {
+        int temp = 0; scanf("%d", &temp);
+        if (temp == 0) break;
+        vectorPush(&intVec, &temp);
+    }
+    mergeSort(intVec, *intCmp);
+    for (size_t i = 0; i < intVec.size; i++)
+        printf("%d ", *(int*)getElem(intVec, i));
+    vectorDtor(&intVec);
+    //matrixTests();
     //tournamentTable();
     return 0;
 }
 
 int intCmp(const void* a, const void* b) {
     if (*(const int*)a == *(const int*)b) return 0;
-    if (*(const int*)a  < *(const int*)b) return 1;
+    if (*(const int*)a  > *(const int*)b) return 1;
     return -1;
 }
 
