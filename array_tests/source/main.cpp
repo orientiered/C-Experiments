@@ -4,9 +4,40 @@
 #include "utils.h"
 #include "tournamentTable.h"
 #include "matrix.h"
+#include "myVector.h"
+
+
 void tournamentTable();
+void matrixTests();
+
+int intCmp(const void* a, const void* b);
+int floatCmp(const void* a, const void* b);
 
 int main() {
+    const float floatData[] = {1000-7, 1, 0.5, 3.4, 9.8, 21};
+    vector_t floatVec = vectorCopyCtor(6, sizeof(float), (const void*)floatData);
+    mergeSort(floatVec, *floatCmp);
+    for (size_t i = 0; i < floatVec.size; i++)
+        printf("%f ", *(float*)getElem(floatVec, i));
+    vectorDtor(&floatVec);
+    //matrixTests
+    //tournamentTable();
+    return 0;
+}
+
+int intCmp(const void* a, const void* b) {
+    if (*(const int*)a == *(const int*)b) return 0;
+    if (*(const int*)a  < *(const int*)b) return 1;
+    return -1;
+}
+
+int floatCmp(const void* a, const void* b) {
+    if (*(const float*)a == *(const float*)b) return 0;
+    if (*(const float*)a  > *(const float*)b) return 1;
+    return -1;
+}
+
+void matrixTests() {
     const double data1[][4] = {
         {1, 2, 3, 4},
         {1, 1, 1, 1}
@@ -49,8 +80,6 @@ int main() {
     delMatrix(&m4);
     delMatrix(&inv);
     delMatrix(&detTest);
-    //tournamentTable();
-    return 0;
 }
 
 void tournamentTable() {

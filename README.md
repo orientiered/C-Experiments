@@ -24,6 +24,6 @@
 
 Использование:
 
-./main e in out - архивировать файл in в файл out
+`./main e in out` - архивировать файл in в файл out
 
-./main d in out - разархивировать файл in в файл out
+`./main d in out` - разархивировать файл in в файл out
