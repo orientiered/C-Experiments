@@ -10,8 +10,6 @@ typedef struct vector {
 
 vector_t vectorCtor(size_t size, size_t elemSize);
 
-vector_t vectorListCtor(size_t elemSize, ...);
-
 vector_t vectorCopyCtor(size_t size, size_t elemSize, const void* data);
 
 void vectorDtor(vector_t* vec);
@@ -34,4 +32,8 @@ void mergeSort(vector_t vec, int (*cmp)(const void* a, const void* b));
 
 void mergeArrays(vector_t vec1, vector_t vec2, vector_t vec, int (*cmp)(const void* a, const void* b));
 
+void *recalloc(void *base, size_t newSize, size_t oldSize);
+
+//works as minimal version of printf but all arguments are void*
+void voidPrintf(const char *fmt, ...);
 #endif

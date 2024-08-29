@@ -6,6 +6,7 @@
 #include "matrix.h"
 #include "myVector.h"
 
+const double EPSILON = 1e-7;
 
 void tournamentTable();
 void matrixTests();
@@ -18,7 +19,7 @@ int main() {
     vector_t floatVec = vectorCopyCtor(6, sizeof(float), (const void*)floatData);
     mergeSort(floatVec, *floatCmp);
     for (size_t i = 0; i < floatVec.size; i++)
-        printf("%f ", *(float*)getElem(floatVec, i));
+        voidPrintf("%f ", getElem(floatVec, i));
     vectorDtor(&floatVec);
 
     vector_t intVec = vectorCtor(0, sizeof(int));
@@ -29,7 +30,7 @@ int main() {
     }
     mergeSort(intVec, *intCmp);
     for (size_t i = 0; i < intVec.size; i++)
-        printf("%d ", *(int*)getElem(intVec, i));
+        voidPrintf("%d ", getElem(intVec, i));
     vectorDtor(&intVec);
     //matrixTests();
     //tournamentTable();
@@ -43,7 +44,7 @@ int intCmp(const void* a, const void* b) {
 }
 
 int floatCmp(const void* a, const void* b) {
-    if (*(const float*)a == *(const float*)b) return 0;
+    if ((*(const float*)a - *(const float*)b) < EPSILON) return 0;
     if (*(const float*)a  > *(const float*)b) return 1;
     return -1;
 }

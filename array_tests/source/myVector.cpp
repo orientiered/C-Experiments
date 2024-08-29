@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include "utils.h"
 #include "myVector.h"
@@ -76,17 +77,11 @@ vector_t vectorCtor(size_t size, size_t elemSize) {
     return newVector;
 }
 
-vector_t vectorListCtor(size_t elemSize, ...) {
-
-}
-
 void* vectorPush(vector_t* vec, void* elem) {
     if (vec->size >= vec->reserved) {
-        void *newBase = calloc(vec->reserved * 2, vec->elemSize);
+        void *newBase = recalloc(vec->base, 2 * vec->reserved * vec->elemSize, vec->reserved * vec->elemSize);
         if (!newBase) return NULL;
         vec->reserved *= 2;
-        memcpy(newBase, vec->base, vec->size*vec->elemSize);
-        free(vec->base);
         vec->base = newBase;
     }
     vec->size++;
@@ -94,8 +89,89 @@ void* vectorPush(vector_t* vec, void* elem) {
     return getElem(*vec, vec->size-1);
 }
 
+void *recalloc(void *base, size_t newSize, size_t oldSize) {
+    void* newBase = realloc(base, newSize);
+    if (!newBase) return NULL;
+    if (newSize > oldSize)
+        memset((char*)newBase + oldSize, 0, newSize-oldSize);
+    return newBase;
+}
+
 void* vectorPop(vector_t* vec) {
     if (vec->size == 0) return NULL;
     vec->size--;
     return getElem(*vec, vec->size-1);
+}
+
+void voidPrintf(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    union {
+    unsigned int *uival;
+    int *ival;
+    long long *llval;
+    unsigned long long *ullval;
+    float *fval;
+    double *dval;
+    } argument;
+
+    const char *p = fmt;
+    for (; *p; p++) {
+        if (*p!='%') {
+            putchar(*p);
+            continue;
+        }
+
+        switch(*++p) {
+        case 'd':
+            argument.ival = (int*)va_arg(ap, void*);
+            printf("%d", *argument.ival);
+            break;
+        case 'f':
+        case 'e':
+        case 'g':
+            argument.fval = (float*)va_arg(ap, void*);
+            printf("%g", *argument.fval);
+            break;
+        case 'u':
+            switch(*++p) {
+            case 'd':
+                argument.uival = (unsigned int*)va_arg(ap, void*);
+                printf("%ud", *argument.uival);
+                break;
+            case 'l':
+                if ((*(p+1)) == 'l') {
+                    p++;
+                    argument.ullval = (unsigned long long int*)va_arg(ap, void*);
+                    printf("%lld", *argument.ullval);
+                }
+                break;
+            default:
+                break;
+            }
+            break;
+        case 'l':
+            switch(*++p) {
+            case 'f':
+            case 'e':
+            case 'g':
+                argument.dval = (double*)va_arg(ap, void*);
+                printf("%lg", *argument.dval);
+                break;
+            case 'l':
+                if ((*(p+1)) == 'd') {
+                    p++;
+                    argument.llval = (long long int*)va_arg(ap, void*);
+                    printf("%lld", *argument.llval);
+                }
+                break;
+            default:
+                break;
+            }
+        default:
+            break;
+        }
+    }
+    va_end(ap);
 }
