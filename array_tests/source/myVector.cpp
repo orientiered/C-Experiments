@@ -79,7 +79,7 @@ vector_t vectorCtor(size_t size, size_t elemSize) {
 
 void* vectorPush(vector_t* vec, void* elem) {
     if (vec->size >= vec->reserved) {
-        void *newBase = recalloc(vec->base, 2 * vec->reserved * vec->elemSize, vec->reserved * vec->elemSize);
+        void *newBase = recalloc(vec->base, 2*vec->reserved*vec->elemSize, vec->reserved*vec->elemSize);
         if (!newBase) return NULL;
         vec->reserved *= 2;
         vec->base = newBase;
@@ -125,25 +125,25 @@ void voidPrintf(const char *fmt, ...) {
 
         switch(*++p) {
         case 'd':
-            argument.ival = (int*)va_arg(ap, void*);
+            argument.ival = va_arg(ap, int*);
             printf("%d", *argument.ival);
             break;
         case 'f':
         case 'e':
         case 'g':
-            argument.fval = (float*)va_arg(ap, void*);
+            argument.fval = va_arg(ap, float*);
             printf("%g", *argument.fval);
             break;
         case 'u':
             switch(*++p) {
             case 'd':
-                argument.uival = (unsigned int*)va_arg(ap, void*);
+                argument.uival = va_arg(ap, unsigned int*);
                 printf("%ud", *argument.uival);
                 break;
             case 'l':
                 if ((*(p+1)) == 'l') {
                     p++;
-                    argument.ullval = (unsigned long long int*)va_arg(ap, void*);
+                    argument.ullval = va_arg(ap, unsigned long long int*);
                     printf("%lld", *argument.ullval);
                 }
                 break;
@@ -156,13 +156,13 @@ void voidPrintf(const char *fmt, ...) {
             case 'f':
             case 'e':
             case 'g':
-                argument.dval = (double*)va_arg(ap, void*);
+                argument.dval = va_arg(ap, double*);
                 printf("%lg", *argument.dval);
                 break;
             case 'l':
                 if ((*(p+1)) == 'd') {
                     p++;
-                    argument.llval = (long long int*)va_arg(ap, void*);
+                    argument.llval = va_arg(ap, long long int*);
                     printf("%lld", *argument.llval);
                 }
                 break;

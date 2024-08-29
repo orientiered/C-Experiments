@@ -36,4 +36,5 @@ void *recalloc(void *base, size_t newSize, size_t oldSize);
 
 //works as minimal version of printf but all arguments are void*
 void voidPrintf(const char *fmt, ...);
+
 #endif

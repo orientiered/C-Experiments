@@ -33,13 +33,11 @@ matrix_t multiplyMatrix(const matrix_t mat1, const matrix_t mat2) {
 
     matrix_t result = createMatrix(mat2.sizeX, mat1.sizeY);
 
-    for (size_t i = 0; i < result.sizeY; i++) {
-        for (size_t j = 0; j < result.sizeX; j++) {
+    for (size_t i = 0; i < result.sizeY; i++)
+        for (size_t j = 0; j < result.sizeX; j++)
             for (size_t k = 0; k < mat1.sizeX; k++)
-                result.data[i*result.sizeX+j] +=
-                    mat1.data[i*mat1.sizeX + k] * mat2.data[k*mat2.sizeX + j];
-        }
-    }
+                *getElement(result, i, j) += *getElement(mat1, i, k) * *getElement(mat2, k, j);
+
     return result;
 }
 
@@ -105,11 +103,10 @@ matrix_t transpose(const matrix_t mat) {
     if (!mat.data)
         return mat;
     matrix_t result = createMatrix(mat.sizeY, mat.sizeX);
-    for (size_t i = 0; i < mat.sizeY; i++) {
-        for (size_t j = 0; j < mat.sizeX; j++) {
+    for (size_t i = 0; i < mat.sizeY; i++)
+        for (size_t j = 0; j < mat.sizeX; j++)
             *getElement(result, j, i) = *getElement(mat, i, j);
-        }
-    }
+
     return result;
 }
 
@@ -118,18 +115,17 @@ matrix_t inverse(const matrix_t mat) {
 
     //creating temporary matrix, because we don't want to allocate memory on every complement() call
     matrix_t temp = createMatrix(mat.sizeX-1, mat.sizeY-1);
-    for (size_t i = 0; i < mat.sizeY; i++) {
-        for (size_t j = 0; j < mat.sizeX; j++) {
+    for (size_t i = 0; i < mat.sizeY; i++)
+        for (size_t j = 0; j < mat.sizeX; j++)
             *getElement(result, i, j) = complement(mat, temp, i, j);
-        }
-    }
+
     delMatrix(&temp);
 
     elementMatrix_t determinant = 0;
     //we already calculated all complementaries, so we don't want to do it again in det() function
-    for (size_t i = 0; i < mat.sizeX; i++) {
+    for (size_t i = 0; i < mat.sizeX; i++)
         determinant += *getElement(mat, 0, i) * *getElement(result, 0, i);
-    }
+
     printf("det = %lg\n", determinant);
     for (size_t i = 0; i < mat.sizeX*mat.sizeY; i++)
         result.data[i] /= determinant;
