@@ -5,7 +5,9 @@
 
 //when encoding, this text is the start of file
 //when decoding, program will check if file is signed correctly
-const char identifierText[] = "__rle__v.1.0\n";
+const char identifierText[] = "rlev.1.1\n";
+
+static int bytesPerSymbol = 2;
 
 /// @brief
 /// @param anchor Start of the block
@@ -23,16 +25,16 @@ static void writeEncodedBlock(char **anchor, int *isSame, int *numSymbols, FILE 
     //writing block
     switch(*isSame) {
         case 0:
-            fwrite(*anchor, 1, *numSymbols, out);
+            fwrite(*anchor, bytesPerSymbol, *numSymbols, out);
             break;
         case 1:
-            fputc(**anchor, out);
+            fwrite(*anchor, bytesPerSymbol, 1, out);
             break;
         default:
             break;
     }
     //moving anchor point and reseting other parameters
-    *anchor += *numSymbols;
+    *anchor += (*numSymbols * bytesPerSymbol);
     *isSame = -1;
     *numSymbols = 0;
 }
@@ -49,41 +51,47 @@ void encodeRLE(char *input, size_t size, FILE * out) {
     int numSymbols = 0;
     int isSame = -1;
     char *anchor = input; //start of the current block
-    const unsigned char maxSymbols = 1 << 7 - 1;
+    const unsigned char maxSymbols = (1 << 7) - 1;
 
+    //information to correctly decode -> size of symbol
+    fputc(bytesPerSymbol, out);
     //archiver sign
-    fwrite(identifierText, 1, sizeof(identifierText), out);
+    fwrite(identifierText, 1, sizeof(identifierText)-1, out);
 
-    for (size_t i = 0; i < size; i++) {
+    size_t i = 0;
+    size_t limit = size - (size % bytesPerSymbol);
+    for (; i < limit; i += bytesPerSymbol) {
         if (numSymbols == maxSymbols) {
             writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
         } else if ((anchor - input) == i) {
             continue;
-        } else if ((anchor - input) == (i-1)) {
-            isSame = (input[i-1] == input[i]);
+        } else if ((anchor - input) == (i-bytesPerSymbol)) {
+            isSame = (memcmp(&input[i], &input[i-bytesPerSymbol], bytesPerSymbol) == 0) ? 1 : 0;
+            //printf("isSame = %d\n", isSame);
             numSymbols = 2;
         } else {
-            if (((input[i] == input[i-1]) && (isSame == 1)) ||
-                ((input[i] != input[i-1]) && (isSame == 0))) {
+            int cmpResult = (memcmp(&input[i], &input[i-bytesPerSymbol], bytesPerSymbol) == 0) ? 1 : 0;
+            //printf("cmpResult = %d\n", cmpResult);
+            if ((cmpResult && (isSame == 1)) ||
+                (!cmpResult && (isSame == 0))) {
                 numSymbols++;
-            } else if ((input[i] == input[i-1]) && (isSame == 0)) {
+                //printf("numSymbols = %d\n", numSymbols);
+            } else if (cmpResult && (isSame == 0)) {
                 numSymbols--;
                 writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
-                i--;
+                i -= bytesPerSymbol;
             } else if (isSame == 1) {
                 writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
             }
         }
     }
-
     //putting last block to file
-    if (anchor == (input + size-1)) {
-        //only one symbol
-        fputc(1, out);
-        fputc(*anchor, out);
-    } else {
+    if (isSame != -1)
         writeEncodedBlock(&anchor, &isSame, &numSymbols, out);
-    }
+    //128 is unused value, because 0 same characters doesn't make sense
+    fputc(128, out);
+    for (i = anchor - input; i < size; i++)
+        fputc(input[i], out);
 }
 
 void encodeRLE_File(FILE *in, FILE *out) {
@@ -98,26 +106,58 @@ void encodeRLE_File(FILE *in, FILE *out) {
 }
 
 void decodeRLE_File(FILE *in, FILE *out) {
-    char fileSign[sizeof(identifierText)] = "";
+    bytesPerSymbol = fgetc(in);
+    if (bytesPerSymbol < 1 || bytesPerSymbol > 255) return;
+
+    char fileSign[sizeof(identifierText)-1] = "";
     fread(fileSign, 1, sizeof(identifierText) - 1, in);
 
-    if (strcmp(fileSign, identifierText) != 0) {
+    if (strncmp(fileSign, identifierText, sizeof(identifierText) - 1) != 0) {
         printf("This file wasn't archived by RLE; can't decode\n");
         return;
     }
 
+    int temp = 0;
     unsigned char code = 0;
     unsigned char mask = 1<<7;
-    int symbol = 0;
-    while((symbol = fgetc(in)) != EOF) {
-        if (code == 0) code = symbol;
-        else if (code & mask) {
-            for (int i = 0; i < (code - mask); i++)
-                fputc(symbol, out);
+    char *symbol = (char*) calloc(bytesPerSymbol, 1);
+    while (1) {
+        if (!code) {
+            temp = fgetc(in);
+            if (temp == EOF) break;
+            printf("code = %d + %d\n", temp / 128, temp % 128);
+            code = (unsigned char) temp;
+            continue;
+        }
+
+        if (code == 128) {
+            while ((temp = fgetc(in)) != EOF)
+                fputc((unsigned char) temp, out);
+
+            break;
+        }
+
+        if (code & mask) {
+            fread(symbol, bytesPerSymbol, 1, in);
+            for (int k = 0; k < (code - mask); k++)
+                fwrite(symbol, bytesPerSymbol, 1, out);
             code = 0;
         } else {
-            code--;
-            fputc(symbol, out);
+            while (code) {
+                fread(symbol, bytesPerSymbol, 1, in);
+                fwrite(symbol, bytesPerSymbol, 1, out);
+                code--;
+            }
         }
     }
+    free(symbol);
+}
+
+
+void setBytesPerSymbol(size_t bytes) {
+    if (bytes > 255) {
+        printf("Too big symbol size. Symbol size must be <= 255\n");
+        return;
+    }
+    bytesPerSymbol = bytes;
 }

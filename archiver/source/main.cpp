@@ -19,6 +19,10 @@ int main(int argc, char *argv[]) {
         printHelpMessage();
         return 0;
     }
+
+    if (flags[BYTES].set)
+        setBytesPerSymbol(flags[BYTES].val._int);
+
     if (flags[INPUT].set) {
         inputName = flags[INPUT].val._string;
     } else {

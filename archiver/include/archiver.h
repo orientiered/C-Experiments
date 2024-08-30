@@ -7,4 +7,5 @@ void encodeRLE_File(FILE *in, FILE *out);
 
 void decodeRLE_File(FILE *input, FILE *output);
 
+void setBytesPerSymbol(size_t bytes);
 #endif

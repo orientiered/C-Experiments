@@ -42,6 +42,7 @@ enum argNamesEnum {
     DECODE,
     INPUT,
     OUTPUT,
+    BYTES,
     HELP
 };
 
@@ -52,6 +53,7 @@ const argDescriptor_t args[] {
     {tBLANK,    "-d",   "--decode",   "Tells program to decode given file"},
     {tSTRING,   "-i",   "--input",    "Next argument is name of input file"},
     {tSTRING,   "-o",   "--output",   "Next argument is name of output file"},
+    {tINT,      "-b",   "--byte",     "Next argument is size of symbol when decoding"},
     {tBLANK,    "-h",   "--help",     "Prints help message"}
 };
 
