@@ -86,8 +86,18 @@ void encodeRLE(char *input, size_t size, FILE * out) {
     }
 }
 
+void encodeRLE_File(FILE *in, FILE *out) {
+    size_t inputSize = 0;
+    fseek(in, 0, SEEK_END);
+    inputSize = ftell(in);
+    fseek(in, 0, SEEK_SET);
+    char *inputString = (char *)calloc(inputSize, 1);
+    fread(inputString, 1, inputSize, in);
+    encodeRLE(inputString, inputSize, out);
+    free(inputString);
+}
 
-void decodeRLE(FILE *in, FILE *out) {
+void decodeRLE_File(FILE *in, FILE *out) {
     char fileSign[sizeof(identifierText)] = "";
     fread(fileSign, 1, sizeof(identifierText) - 1, in);
 

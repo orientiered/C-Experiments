@@ -3,6 +3,8 @@
 
 void encodeRLE(char *input, size_t size, FILE * out);
 
-void decodeRLE(FILE *input, FILE *output);
+void encodeRLE_File(FILE *in, FILE *out);
+
+void decodeRLE_File(FILE *input, FILE *output);
 
 #endif

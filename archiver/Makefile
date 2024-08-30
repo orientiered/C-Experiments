@@ -26,9 +26,9 @@ NAME=main
 #Name of directory where .o and .d files will be stored
 OBJDIR = build
 #Name of directory with headers
-INCLUDEDIR = .
+INCLUDEDIR = include
 #Name of directory with .cpp
-SRCDIR = .
+SRCDIR = source
 #Name of directory where doxygen documentation will be generated
 DOXYDIR = doxDocs
 
