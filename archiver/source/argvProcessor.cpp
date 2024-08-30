@@ -5,7 +5,10 @@
 
 enum error processArgs(argVal_t flags[], int argc, char *argv[]) {
     for (int i = 1; i < argc;) {
-        if (argv[i][0] != '-') continue;
+        if (argv[i][0] != '-')  {
+            i++;
+            continue;
+        }
 
         int remainToScan = 0;
         if (argv[i][1] == '-')
