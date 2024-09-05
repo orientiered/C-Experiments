@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include "archiver.h"
@@ -125,7 +126,7 @@ void decodeRLE_File(FILE *in, FILE *out) {
         if (!code) {
             temp = fgetc(in);
             if (temp == EOF) break;
-            printf("code = %d + %d\n", temp / 128, temp % 128);
+            //printf("code = %d + %d\n", temp / 128, temp % 128);
             code = (unsigned char) temp;
             continue;
         }
